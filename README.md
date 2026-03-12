@@ -129,6 +129,35 @@ This project follows Test-Driven Development (TDD) principles.
 - [ ] sector.cdb
 - [ ] Additional mapdl-archive files
 
+## Performance
+
+Highly optimized for speed with ~19% performance improvement in v1.3.0:
+
+**Benchmark Results** (v1.3.0):
+```
+File                     Nodes  Elements    Time      Throughput
+workbench_193.cdb           3         0   0.88 ms      3,429/s
+etblock.cdb                 4         1   0.72 ms      6,925/s
+all_solid_cells.cdb        52         4   0.97 ms     57,911/s
+ErnoRadiation.cdb          65        36   1.56 ms     64,578/s
+hypermesh.cdb             105        80   1.39 ms    132,807/s
+HexBeam.cdb               321        40   2.29 ms    157,573/s
+sector.cdb                655       105   2.20 ms    344,984/s
+academic_rotor.cdb        786       524   4.04 ms    324,338/s
+TetBeam.cdb              1041      3913  14.55 ms    340,411/s
+mesh200.cdb              4961      1000  21.36 ms    279,047/s
+----------------------------------------------------------------
+TOTAL                   13696            49.97 ms    274,090/s
+```
+
+**Key Optimizations**:
+- Memory pre-allocation (vector.reserve)
+- Reduced temporary object allocations
+- Optimized scientific notation parsing
+- Cache-friendly data access patterns
+
+See [OPTIMIZATION_REPORT.md](OPTIMIZATION_REPORT.md) for detailed analysis.
+
 ## Testing
 
 All test files from [mapdl-archive](https://github.com/akaszynski/mapdl-archive) repository are used for validation:
@@ -167,6 +196,7 @@ MIT License
 ---
 
 **Status**: ✅ **ALL CORE FEATURES COMPLETE** - Phases 1-5 Done  
-**Latest**: v1.2.0-beta - Full CDB parser with extensive validation  
-**Test Coverage**: 31/31 tests passing (100%)  
-**Validated Files**: 11 CDB files, 8028 nodes, 5703 elements, 5 element types
+**Latest**: v1.3.0-beta - Performance optimized CDB parser  
+**Test Coverage**: 34/34 tests passing (100%)  
+**Performance**: ~274K entities/sec, 19% faster than v1.2  
+**Validated**: 11 CDB files, 8028 nodes, 5703 elements, 5 element types
