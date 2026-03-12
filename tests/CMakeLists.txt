@@ -19,6 +19,7 @@ add_executable(ansys_cdb_tests
     test_elements.cpp
     test_components.cpp
     test_realconstants.cpp
+    test_additional_files.cpp
 )
 
 target_link_libraries(ansys_cdb_tests
