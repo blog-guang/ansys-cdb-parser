@@ -17,6 +17,7 @@ add_executable(ansys_cdb_tests
     test_parser.cpp
     test_nodes.cpp
     test_elements.cpp
+    test_components.cpp
 )
 
 target_link_libraries(ansys_cdb_tests

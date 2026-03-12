@@ -283,16 +283,133 @@ bool Parser::parse_eblock(std::ifstream& file, Archive& archive, const std::stri
 }
 
 bool Parser::parse_cmblock(std::ifstream& file, Archive& archive, const std::string& line) {
-    (void)archive;  // TODO: Use in Phase 4
-    (void)line;     // TODO: Use in Phase 4
+    // Parse CMBLOCK command line
+    // Format: CMBLOCK,<name>,<type>,<count>
+    // Example: CMBLOCK,ECOMP1  ,ELEM,       4
     
-    // TODO: Implement CMBLOCK parsing in Phase 4
-    std::string data_line;
-    while (std::getline(file, data_line)) {
-        if (trim(data_line).find("-1") == 0) {
-            break;
+    std::istringstream iss(line);
+    std::string token;
+    std::getline(iss, token, ',');  // Skip "CMBLOCK"
+    
+    Component comp;
+    
+    // Parse component name
+    if (std::getline(iss, token, ',')) {
+        comp.name = trim(token);
+    }
+    
+    // Parse component type (NODE or ELEM)
+    if (std::getline(iss, token, ',')) {
+        std::string type_str = trim(token);
+        if (type_str == "NODE") {
+            comp.type = ComponentType::NODE;
+        } else if (type_str == "ELEM" || type_str == "ELEMENT") {
+            comp.type = ComponentType::ELEMENT;
+        } else {
+            return false;  // Unknown type
         }
     }
+    
+    // Read format line (e.g., "(8i10)")
+    std::string format_line;
+    if (!std::getline(file, format_line)) {
+        return false;
+    }
+    
+    // Parse format to get field width
+    std::regex format_regex(R"(\((\d+)i(\d+)\))");
+    std::smatch format_match;
+    int num_fields = 8;  // Default
+    int field_width = 10;  // Default
+    
+    if (std::regex_search(format_line, format_match, format_regex)) {
+        num_fields = std::stoi(format_match[1]);
+        field_width = std::stoi(format_match[2]);
+    }
+    
+    // Read component IDs
+    std::string data_line;
+    std::vector<int> raw_ids;
+    
+    // Store file position before reading each line
+    std::streampos last_pos;
+    
+    while (true) {
+        last_pos = file.tellg();
+        if (!std::getline(file, data_line)) {
+            break;
+        }
+        
+        std::string trimmed_check = trim(data_line);
+        
+        // Check for terminator or next command
+        if (trimmed_check.empty()) {
+            continue;  // Skip empty lines
+        }
+        
+        // If we hit a new command, restore position and exit
+        std::string upper = to_upper(trimmed_check);
+        if (upper.find("CMBLOCK") == 0 ||
+            upper.find("MPTEMP") == 0 ||
+            upper.find("MPDATA") == 0 ||
+            upper.find("EXTOPT") == 0 ||
+            upper.find("NBLOCK") == 0 ||
+            upper.find("EBLOCK") == 0 ||
+            upper.find("ET,") == 0) {
+            // Restore file position so main parser can read this line
+            file.seekg(last_pos);
+            break;
+        }
+        
+        // Parse IDs from fixed-width line
+        for (int i = 0; i < num_fields && i * field_width < static_cast<int>(data_line.length()); ++i) {
+            size_t pos = i * field_width;
+            size_t width = std::min(static_cast<size_t>(field_width), data_line.length() - pos);
+            std::string field_str = data_line.substr(pos, width);
+            std::string trimmed_field = trim(field_str);
+            
+            if (!trimmed_field.empty()) {
+                try {
+                    raw_ids.push_back(std::stoi(trimmed_field));
+                } catch (...) {
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Expand range notation (negative numbers indicate range end)
+    size_t i = 0;
+    while (i < raw_ids.size()) {
+        int id = raw_ids[i];
+        
+        if (id > 0) {
+            // Positive: start of range or single ID
+            if (i + 1 < raw_ids.size() && raw_ids[i + 1] < 0) {
+                // This is a range: id to -raw_ids[i+1]
+                int range_end = -raw_ids[i + 1];
+                for (int j = id; j <= range_end; ++j) {
+                    comp.add_id(j);
+                }
+                i += 2;  // Skip both the start and the negative end marker
+            } else {
+                // Single ID
+                comp.add_id(id);
+                ++i;
+            }
+        } else {
+            // Shouldn't happen (negative without preceding positive)
+            ++i;
+        }
+    }
+    
+    // Store component in archive
+    if (comp.type == ComponentType::NODE) {
+        archive.node_components_[comp.name] = comp;
+    } else {
+        archive.elem_components_[comp.name] = comp;
+    }
+    
     return true;
 }
 
