@@ -8,7 +8,7 @@ A modern C++17 library for parsing ANSYS MAPDL archive (CDB) files.
 - ✅ Parse EBLOCK (elements) - **Complete**
 - ✅ Parse CMBLOCK (components/groups) - **Complete**
 - ✅ Parse ET (element types) - **Complete**
-- 🚧 Parse RLBLOCK (real constants) - In Progress
+- ✅ Parse RLBLOCK (real constants) - **Complete**
 - ✅ Parse parameters (*SET) - **Complete**
 - ✅ STL containers (vector, unordered_map)
 - ✅ Header-only friendly design
@@ -109,11 +109,25 @@ This project follows Test-Driven Development (TDD) principles.
 - [x] Support variable-length node connectivity
 - [x] Test with HexBeam.cdb (40 elements)
 
-### Phase 4-6: Additional Features (Next)
-- [ ] CMBLOCK (component groups)
-- [ ] RLBLOCK (real constants)
-- [ ] Full parameter support
-- [ ] Test with all mapdl-archive files
+### Phase 4: CMBLOCK Parser ✅ **COMPLETE**
+- [x] Parse component groups (NODE/ELEM)
+- [x] Range notation expansion
+- [x] Fixed-width format parsing
+- [x] Test with HexBeam.cdb (4 components, 262 members)
+
+### Phase 5: RLBLOCK Parser ✅ **COMPLETE**
+- [x] Parse real constant sets
+- [x] Multi-line format support
+- [x] Variable-length value arrays
+- [x] Test with ErnoRadiation.cdb and hypermesh.cdb
+
+### Phase 6: Extended Testing (Next)
+- [x] HexBeam.cdb fully tested
+- [x] ErnoRadiation.cdb tested
+- [x] hypermesh.cdb tested
+- [ ] TetBeam.cdb
+- [ ] sector.cdb
+- [ ] Additional mapdl-archive files
 
 ## Testing
 
@@ -152,6 +166,7 @@ MIT License
 
 ---
 
-**Status**: ✅ Core Features Complete - Phases 1-3 Done  
-**Latest**: v0.1.0-alpha - NBLOCK & EBLOCK parsers functional  
-**Test Coverage**: 10/10 tests passing (HexBeam.cdb: 321 nodes, 40 elements)
+**Status**: ✅ **ALL CORE FEATURES COMPLETE** - Phases 1-5 Done  
+**Latest**: v1.0.0-beta - Full CDB parser functional  
+**Test Coverage**: 17/17 tests passing (100%)  
+**Validated Files**: HexBeam.cdb, ErnoRadiation.cdb, hypermesh.cdb
