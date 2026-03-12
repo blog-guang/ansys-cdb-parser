@@ -173,17 +173,112 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
 }
 
 bool Parser::parse_eblock(std::ifstream& file, Archive& archive, const std::string& line) {
-    (void)archive;  // TODO: Use in Phase 3
-    (void)line;     // TODO: Use in Phase 3
+    (void)line;  // Not used - element count in command line
     
-    // TODO: Implement EBLOCK parsing in Phase 3
-    // For now, just skip to the terminator
+    // Parse EBLOCK command line
+    // Format: EBLOCK,<format_code>,<format_type>,<numelem>,<numelem>
+    // Example: EBLOCK,19,SOLID,        40,        40
+    
+    std::string format_line;
+    if (!std::getline(file, format_line)) {
+        return false;
+    }
+    
+    // Parse format specification, e.g., "(19i10)"
+    std::regex format_regex(R"(\((\d+)i(\d+)\))");
+    std::smatch format_match;
+    int num_fields = 19;  // Default
+    int field_width = 10;  // Default
+    
+    if (std::regex_search(format_line, format_match, format_regex)) {
+        num_fields = std::stoi(format_match[1]);
+        field_width = std::stoi(format_match[2]);
+    }
+    
+    // Read element data
     std::string data_line;
+    bool reading_element = false;
+    Element current_element;
+    
     while (std::getline(file, data_line)) {
-        if (trim(data_line).find("-1") == 0) {
+        std::string trimmed_check = trim(data_line);
+        
+        // Check for terminator
+        if (trimmed_check.find("-1") == 0 || trimmed_check == "-1") {
             break;
         }
+        
+        if (trimmed_check.empty()) {
+            continue;
+        }
+        
+        // Parse fields from fixed-width line
+        std::vector<int> fields;
+        for (int i = 0; i < num_fields && i * field_width < static_cast<int>(data_line.length()); ++i) {
+            size_t pos = i * field_width;
+            size_t width = std::min(static_cast<size_t>(field_width), data_line.length() - pos);
+            std::string field_str = data_line.substr(pos, width);
+            try {
+                fields.push_back(std::stoi(trim(field_str)));
+            } catch (...) {
+                break;  // Stop on parse error
+            }
+        }
+        
+        if (fields.empty()) {
+            continue;
+        }
+        
+        // Check if this is the start of a new element
+        // New element line has at least 11 fields and field[8] is the node count (reasonable value <= 30)
+        bool is_new_element = false;
+        if (fields.size() >= 11 && fields[8] > 0 && fields[8] <= 30) {
+            is_new_element = true;
+        }
+        
+        if (!reading_element || is_new_element) {
+            // Save previous element if any
+            if (reading_element && current_element.id != 0) {
+                size_t index = archive.elements_.size();
+                archive.elements_.push_back(current_element);
+                archive.element_map_[current_element.id] = index;
+            }
+            
+            // Start new element
+            if (fields.size() < 11) {
+                continue;  // Invalid element line
+            }
+            
+            current_element = Element();
+            current_element.material_id = fields[0];
+            current_element.type = fields[1];
+            current_element.real_constant_id = fields[2];
+            current_element.section_id = fields[3];
+            current_element.coordinate_system = fields[4];
+            // fields[8] contains number of nodes (for validation)
+            current_element.id = fields[10];  // Element ID
+            
+            // Collect node IDs starting from field 11
+            for (size_t i = 11; i < fields.size(); ++i) {
+                current_element.node_ids.push_back(fields[i]);
+            }
+            
+            reading_element = true;
+        } else {
+            // Continuation line - just node IDs
+            for (const auto& field : fields) {
+                current_element.node_ids.push_back(field);
+            }
+        }
     }
+    
+    // Save last element
+    if (reading_element && current_element.id != 0) {
+        size_t index = archive.elements_.size();
+        archive.elements_.push_back(current_element);
+        archive.element_map_[current_element.id] = index;
+    }
+    
     return true;
 }
 

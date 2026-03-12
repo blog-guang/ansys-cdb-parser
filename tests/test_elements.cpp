@@ -23,8 +23,8 @@ TEST(ElementTest, Construction) {
     EXPECT_EQ(elem2.num_nodes(), 8);
 }
 
-// This test will be enabled in Phase 3 (EBLOCK parsing)
-TEST(ElementTest, DISABLED_HexBeamElements) {
+// Test with actual HexBeam CDB file
+TEST(ElementTest, HexBeamElements) {
     Archive archive("data/HexBeam.cdb");
     
     // From Python reference: 40 elements
