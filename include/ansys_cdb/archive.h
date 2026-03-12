@@ -95,6 +95,13 @@ public:
     double get_parameter(const std::string& name, double default_value = 0.0) const;
     
     /**
+     * @brief Get real constant set by ID
+     * @param id Real constant set ID
+     * @return Pointer to real constant set, or nullptr if not found
+     */
+    const RealConstant* get_real_constant(int id) const;
+    
+    /**
      * @brief Get number of nodes
      * @return Node count
      */
@@ -117,6 +124,12 @@ public:
      * @return Element component count
      */
     size_t num_element_components() const { return elem_components_.size(); }
+    
+    /**
+     * @brief Get number of real constant sets
+     * @return Real constant set count
+     */
+    size_t num_real_constants() const { return real_constants_.size(); }
     
     /**
      * @brief Clear all data

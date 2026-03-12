@@ -70,6 +70,14 @@ double Archive::get_parameter(const std::string& name, double default_value) con
     return default_value;
 }
 
+const RealConstant* Archive::get_real_constant(int id) const {
+    auto it = real_constants_.find(id);
+    if (it != real_constants_.end()) {
+        return &it->second;
+    }
+    return nullptr;
+}
+
 void Archive::clear() {
     nodes_.clear();
     node_map_.clear();

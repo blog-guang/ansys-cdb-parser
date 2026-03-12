@@ -437,16 +437,116 @@ bool Parser::parse_et(const std::string& line, Archive& archive) {
 }
 
 bool Parser::parse_rlblock(std::ifstream& file, Archive& archive, const std::string& line) {
-    (void)archive;  // TODO: Use in Phase 5
-    (void)line;     // TODO: Use in Phase 5
+    (void)line;  // Command line parameters are in format lines, not needed here
     
-    // TODO: Implement RLBLOCK parsing in Phase 5
+    // Parse RLBLOCK command line
+    // Format: RLBLOCK,<set_id>,<num_values>,<fields_line1>,<fields_line2>
+    // Example: RLBLOCK,       1,       2,       6,       7
+    
+    // Read first format line (e.g., "(2i8,6g16.9)")
+    std::string format_line1;
+    if (!std::getline(file, format_line1)) {
+        return false;
+    }
+    
+    // Read second format line (e.g., "(7g16.9)")
+    std::string format_line2;
+    if (!std::getline(file, format_line2)) {
+        return false;
+    }
+    
+    // Read data line(s)
     std::string data_line;
-    while (std::getline(file, data_line)) {
-        if (trim(data_line).find("-1") == 0) {
+    std::streampos last_pos;
+    
+    while (true) {
+        last_pos = file.tellg();
+        if (!std::getline(file, data_line)) {
             break;
         }
+        
+        std::string trimmed = trim(data_line);
+        if (trimmed.empty()) {
+            continue;
+        }
+        
+        // Check if this is the start of a new command
+        std::string upper = to_upper(trimmed);
+        if (upper.find("NBLOCK") == 0 || upper.find("EBLOCK") == 0 ||
+            upper.find("CMBLOCK") == 0 || upper.find("RLBLOCK") == 0 ||
+            upper.find("ET,") == 0 || upper.find("!!") == 0) {
+            // Restore position and exit
+            file.seekg(last_pos);
+            break;
+        }
+        
+        // Parse real constant data
+        RealConstant rc;
+        
+        // Split line by whitespace and parse
+        std::istringstream iss(data_line);
+        std::vector<std::string> tokens;
+        std::string token;
+        while (iss >> token) {
+            tokens.push_back(token);
+        }
+        
+        if (tokens.size() < 2) {
+            continue;  // Invalid line
+        }
+        
+        // First two tokens are set_id and num_values
+        try {
+            rc.id = std::stoi(tokens[0]);
+            int num_values = std::stoi(tokens[1]);
+            
+            // Remaining tokens are real constant values
+            for (size_t i = 2; i < tokens.size(); ++i) {
+                rc.values.push_back(parse_scientific(tokens[i]));
+            }
+            
+            // Read additional lines if needed
+            while (rc.values.size() < static_cast<size_t>(num_values)) {
+                last_pos = file.tellg();
+                if (!std::getline(file, data_line)) {
+                    break;
+                }
+                
+                trimmed = trim(data_line);
+                if (trimmed.empty()) {
+                    continue;
+                }
+                
+                // Check for new command
+                upper = to_upper(trimmed);
+                if (upper.find("NBLOCK") == 0 || upper.find("EBLOCK") == 0 ||
+                    upper.find("CMBLOCK") == 0 || upper.find("RLBLOCK") == 0 ||
+                    upper.find("ET,") == 0 || upper.find("!!") == 0) {
+                    file.seekg(last_pos);
+                    break;
+                }
+                
+                // Parse continuation line
+                std::istringstream iss2(data_line);
+                while (iss2 >> token) {
+                    rc.values.push_back(parse_scientific(token));
+                    if (rc.values.size() >= static_cast<size_t>(num_values)) {
+                        break;
+                    }
+                }
+            }
+            
+            // Store real constant
+            archive.real_constants_[rc.id] = rc;
+            
+        } catch (...) {
+            continue;  // Skip invalid data
+        }
+        
+        // RLBLOCK typically has only one set per block
+        break;
     }
+    
     return true;
 }
 
