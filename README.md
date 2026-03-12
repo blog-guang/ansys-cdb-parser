@@ -6,9 +6,9 @@ A modern C++17 library for parsing ANSYS MAPDL archive (CDB) files.
 
 - ✅ Parse NBLOCK (nodes) - **Complete**
 - ✅ Parse EBLOCK (elements) - **Complete**
-- 🚧 Parse CMBLOCK (components) - Planned
+- ✅ Parse CMBLOCK (components/groups) - **Complete**
 - ✅ Parse ET (element types) - **Complete**
-- 🚧 Parse RLBLOCK (real constants) - Planned
+- 🚧 Parse RLBLOCK (real constants) - In Progress
 - ✅ Parse parameters (*SET) - **Complete**
 - ✅ STL containers (vector, unordered_map)
 - ✅ Header-only friendly design
