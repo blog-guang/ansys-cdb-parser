@@ -89,59 +89,79 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
     // Read node data until terminator (N,R... or -1)
     std::string data_line;
     while (std::getline(file, data_line)) {
-        std::string trimmed = trim(data_line);
+        // DON'T trim the line - it's fixed-width format!
+        // Only trim for terminator check
+        std::string trimmed_check = trim(data_line);
         
         // Check for terminator (N,R5.3,LOC,       -1, or just -1)
-        if (trimmed.empty()) {
+        if (trimmed_check.empty()) {
             continue;
         }
-        if (trimmed[0] == 'N' || trimmed[0] == 'n' || 
-            trimmed.find("-1") == 0 || trimmed == "-1") {
+        if (trimmed_check[0] == 'N' || trimmed_check[0] == 'n' || 
+            trimmed_check.find("-1") == 0 || trimmed_check == "-1") {
             break;
         }
         
-        // Parse node data
-        // Format: node_id, 0, 0, x, y, z
-        // or with angles: node_id, 0, 0, x, y, z, angle1, angle2, angle3
+        // Parse node data from ORIGINAL line (not trimmed)
+        // Format: node_id, solid, coord_sys, x, [y], [z], [angles...]
+        // Coordinates are optional - missing ones default to 0
         
         Node node;
+        node.x = 0.0;
+        node.y = 0.0;
+        node.z = 0.0;
         
-        // Parse node ID (first field)
+        // Parse node ID and skip fields (first num_fields integers)
         size_t pos = 0;
-        if (trimmed.length() < static_cast<size_t>(format.field_width)) {
-            std::cerr << "Warning: Line too short: '" << trimmed << "'" << std::endl;
-            continue;
+        size_t int_width = static_cast<size_t>(format.field_width);
+        size_t total_int_width = int_width * format.num_fields;
+        
+        if (data_line.length() < int_width) {
+            continue;  // Skip malformed line
         }
         
-        std::string id_str = trimmed.substr(pos, format.field_width);
+        std::string id_str = data_line.substr(pos, int_width);
         try {
             node.id = std::stoi(trim(id_str));
         } catch (const std::exception& e) {
-            std::cerr << "Error parsing node ID from: '" << id_str << "'" << std::endl;
-            std::cerr << "Full line: '" << trimmed << "'" << std::endl;
+            continue;  // Skip unparseable line
+        }
+        
+        // Move past all integer fields
+        pos = total_int_width;
+        
+        // Extract remaining coordinate data
+        // Some lines may have fewer coordinates than the full width specifies
+        if (pos >= data_line.length()) {
+            // No coordinate data, use defaults (0,0,0)
+            size_t index = archive.nodes_.size();
+            archive.nodes_.push_back(node);
+            archive.node_map_[node.id] = index;
             continue;
         }
-        pos += format.field_width * format.num_fields;
         
-        // Parse coordinates
-        // Scientific notation format: width.decimale±exponent
-        // Example: " 1.0000000000000E+000"
-        int coord_width = format.coord_width;
+        // Split the coordinate section by whitespace
+        std::string coord_section = data_line.substr(pos);
+        std::istringstream coord_stream(coord_section);
+        std::vector<double> coords;
+        std::string value;
         
-        if (pos + coord_width * 3 <= trimmed.length()) {
-            std::string x_str = trimmed.substr(pos, coord_width);
-            pos += coord_width;
-            std::string y_str = trimmed.substr(pos, coord_width);
-            pos += coord_width;
-            std::string z_str = trimmed.substr(pos, coord_width);
-            
-            node.x = parse_scientific(x_str);
-            node.y = parse_scientific(y_str);
-            node.z = parse_scientific(z_str);
-        } else {
-            // Handle split line format (coordinates on next line)
-            continue;  // TODO: implement multi-line node parsing
+        while (coord_stream >> value) {
+            try {
+                double parsed = parse_scientific(value);
+                coords.push_back(parsed);
+            } catch (...) {
+                break;  // Stop on parse error
+            }
         }
+        
+        // Assign coordinates
+        if (coords.size() > 0) node.x = coords[0];
+        if (coords.size() > 1) node.y = coords[1];
+        if (coords.size() > 2) node.z = coords[2];
+        if (coords.size() > 3) node.angles[0] = coords[3];
+        if (coords.size() > 4) node.angles[1] = coords[4];
+        if (coords.size() > 5) node.angles[2] = coords[5];
         
         // Add node to archive
         size_t index = archive.nodes_.size();
