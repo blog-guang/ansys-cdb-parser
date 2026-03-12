@@ -196,7 +196,8 @@ MIT License
 ---
 
 **Status**: ✅ **ALL CORE FEATURES COMPLETE** - Phases 1-5 Done  
-**Latest**: v1.3.0-beta - Performance optimized CDB parser  
+**Latest**: v1.4.0-beta - Simplified API with cleaner namespace  
 **Test Coverage**: 34/34 tests passing (100%)  
-**Performance**: ~274K entities/sec, 19% faster than v1.2  
+**Performance**: ~281K entities/sec (optimized)  
+**API**: Simplified includes & namespace (`cdb::` instead of `ansys_cdb::`)  
 **Validated**: 11 CDB files, 8028 nodes, 5703 elements, 5 element types
