@@ -78,6 +78,13 @@ const RealConstant* Archive::get_real_constant(int id) const {
     return nullptr;
 }
 
+void Archive::reserve(size_t num_nodes, size_t num_elements) {
+    nodes_.reserve(num_nodes);
+    node_map_.reserve(num_nodes);
+    elements_.reserve(num_elements);
+    element_map_.reserve(num_elements);
+}
+
 void Archive::clear() {
     nodes_.clear();
     node_map_.clear();

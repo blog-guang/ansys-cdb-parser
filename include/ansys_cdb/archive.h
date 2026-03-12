@@ -40,6 +40,13 @@ public:
     bool load(const std::string& filename);
     
     /**
+     * @brief Reserve capacity for nodes and elements (performance optimization)
+     * @param num_nodes Expected number of nodes
+     * @param num_elements Expected number of elements
+     */
+    void reserve(size_t num_nodes, size_t num_elements);
+    
+    /**
      * @brief Get all nodes
      * @return Vector of nodes
      */

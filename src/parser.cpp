@@ -78,6 +78,24 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
     std::string token;
     std::getline(iss, token, ',');  // Skip "NBLOCK"
     
+    // Try to extract node count for pre-allocation
+    std::vector<std::string> tokens;
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    // Token[2] usually contains node count (numnp)
+    if (tokens.size() >= 3) {
+        try {
+            size_t node_count = std::stoul(tokens[2]);
+            if (node_count > 0) {
+                archive.reserve(node_count, archive.num_elements());
+            }
+        } catch (...) {
+            // Ignore parse errors, just skip pre-allocation
+        }
+    }
+    
     std::string format_line;
     if (!std::getline(file, format_line)) {
         return false;
@@ -88,6 +106,9 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
     
     // Read node data until terminator (N,R... or -1)
     std::string data_line;
+    std::vector<double> coords;  // Reuse this vector
+    coords.reserve(6);  // Max 6 values: x, y, z, angle1, angle2, angle3
+    
     while (std::getline(file, data_line)) {
         // DON'T trim the line - it's fixed-width format!
         // Only trim for terminator check
@@ -141,9 +162,9 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
         }
         
         // Split the coordinate section by whitespace
+        coords.clear();  // Clear instead of creating new vector
         std::string coord_section = data_line.substr(pos);
         std::istringstream coord_stream(coord_section);
-        std::vector<double> coords;
         std::string value;
         
         while (coord_stream >> value) {
@@ -173,11 +194,29 @@ bool Parser::parse_nblock(std::ifstream& file, Archive& archive, const std::stri
 }
 
 bool Parser::parse_eblock(std::ifstream& file, Archive& archive, const std::string& line) {
-    (void)line;  // Not used - element count in command line
-    
     // Parse EBLOCK command line
     // Format: EBLOCK,<format_code>,<format_type>,<numelem>,<numelem>
     // Example: EBLOCK,19,SOLID,        40,        40
+    
+    // Try to extract element count for pre-allocation
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    // Token[3] usually contains element count
+    if (tokens.size() >= 4) {
+        try {
+            size_t elem_count = std::stoul(tokens[3]);
+            if (elem_count > 0) {
+                archive.reserve(archive.num_nodes(), elem_count);
+            }
+        } catch (...) {
+            // Ignore parse errors
+        }
+    }
     
     std::string format_line;
     if (!std::getline(file, format_line)) {
@@ -199,6 +238,8 @@ bool Parser::parse_eblock(std::ifstream& file, Archive& archive, const std::stri
     std::string data_line;
     bool reading_element = false;
     Element current_element;
+    std::vector<int> fields;  // Reuse this vector instead of creating new one each iteration
+    fields.reserve(static_cast<size_t>(num_fields));
     
     while (std::getline(file, data_line)) {
         std::string trimmed_check = trim(data_line);
@@ -213,7 +254,7 @@ bool Parser::parse_eblock(std::ifstream& file, Archive& archive, const std::stri
         }
         
         // Parse fields from fixed-width line
-        std::vector<int> fields;
+        fields.clear();  // Clear instead of creating new vector
         for (int i = 0; i < num_fields && i * field_width < static_cast<int>(data_line.length()); ++i) {
             size_t pos = i * field_width;
             size_t width = std::min(static_cast<size_t>(field_width), data_line.length() - pos);
@@ -613,13 +654,27 @@ double Parser::parse_scientific(const std::string& str) {
     }
     
     try {
-        // Handle FORTRAN-style scientific notation (e.g., "1.0E+00" or "1.0+00")
-        // Replace 'D' with 'E' for double precision
-        std::string normalized = trimmed;
-        std::replace(normalized.begin(), normalized.end(), 'D', 'E');
-        std::replace(normalized.begin(), normalized.end(), 'd', 'e');
+        // Check if we need to normalize (contains 'D' or 'd')
+        bool needs_normalization = false;
+        for (char c : trimmed) {
+            if (c == 'D' || c == 'd') {
+                needs_normalization = true;
+                break;
+            }
+        }
         
-        return std::stod(normalized);
+        if (needs_normalization) {
+            // Replace 'D' with 'E' for FORTRAN-style double precision
+            std::string normalized = trimmed;
+            for (char& c : normalized) {
+                if (c == 'D') c = 'E';
+                else if (c == 'd') c = 'e';
+            }
+            return std::stod(normalized);
+        } else {
+            // No normalization needed, use directly
+            return std::stod(trimmed);
+        }
     } catch (...) {
         std::cerr << "Warning: Failed to parse scientific notation: '" << str << "'" << std::endl;
         return 0.0;
