@@ -4,10 +4,10 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/parser.h"
-#include "ansys_cdb/archive.h"
+#include "parser.h"
+#include "archive.h"
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test empty file
 TEST(ParserTest, EmptyFile) {

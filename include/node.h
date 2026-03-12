@@ -3,13 +3,13 @@
  * @brief Node data structure definition
  */
 
-#ifndef ANSYS_CDB_NODE_H
-#define ANSYS_CDB_NODE_H
+#ifndef CDB_NODE_H
+#define CDB_NODE_H
 
 #include <array>
 #include <vector>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Represents a finite element node
@@ -45,6 +45,6 @@ struct Node {
     }
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_NODE_H
+#endif // CDB_NODE_H

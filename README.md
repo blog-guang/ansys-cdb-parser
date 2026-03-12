@@ -41,11 +41,11 @@ ctest --output-on-failure
 ### Usage Example
 
 ```cpp
-#include <ansys_cdb/archive.h>
+#include <archive.h>
 #include <iostream>
 
 int main() {
-    ansys_cdb::Archive archive("mesh.cdb");
+    cdb::Archive archive("mesh.cdb");
     
     std::cout << "Nodes: " << archive.num_nodes() << std::endl;
     std::cout << "Elements: " << archive.num_elements() << std::endl;
@@ -72,7 +72,7 @@ int main() {
 
 ```
 ansys-cdb-parser/
-├── include/ansys_cdb/   # Public headers
+├── include/             # Public headers
 │   ├── archive.h        # Main Archive class
 │   ├── parser.h         # CDB parser
 │   ├── node.h           # Node data structure

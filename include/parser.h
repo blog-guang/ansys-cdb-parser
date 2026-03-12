@@ -3,15 +3,15 @@
  * @brief CDB file parser
  */
 
-#ifndef ANSYS_CDB_PARSER_H
-#define ANSYS_CDB_PARSER_H
+#ifndef CDB_PARSER_H
+#define CDB_PARSER_H
 
 #include "archive.h"
 #include "types.h"
 #include <fstream>
 #include <string>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Parser for ANSYS CDB files
@@ -108,6 +108,6 @@ private:
     static bool parse_set(const std::string& line, Archive& archive);
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_PARSER_H
+#endif // CDB_PARSER_H

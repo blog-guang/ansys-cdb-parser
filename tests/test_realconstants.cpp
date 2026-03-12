@@ -4,10 +4,10 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/types.h"
-#include "ansys_cdb/archive.h"
+#include "types.h"
+#include "archive.h"
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test RealConstant construction
 TEST(RealConstantTest, Construction) {

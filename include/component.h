@@ -3,14 +3,14 @@
  * @brief Component (groups) data structure definition
  */
 
-#ifndef ANSYS_CDB_COMPONENT_H
-#define ANSYS_CDB_COMPONENT_H
+#ifndef CDB_COMPONENT_H
+#define CDB_COMPONENT_H
 
 #include "types.h"
 #include <string>
 #include <vector>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Represents a named component (group of nodes or elements)
@@ -50,6 +50,6 @@ struct Component {
     }
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_COMPONENT_H
+#endif // CDB_COMPONENT_H

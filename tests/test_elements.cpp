@@ -4,10 +4,10 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/element.h"
-#include "ansys_cdb/archive.h"
+#include "element.h"
+#include "archive.h"
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test Element construction
 TEST(ElementTest, Construction) {

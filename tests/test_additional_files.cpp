@@ -4,13 +4,13 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/archive.h"
+#include "archive.h"
 #include <chrono>
 #include <vector>
 #include <string>
 #include <iostream>
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test TetBeam.cdb (tetrahedral elements)
 TEST(AdditionalFilesTest, TetBeam) {

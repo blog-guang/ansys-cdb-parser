@@ -4,10 +4,10 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/node.h"
-#include "ansys_cdb/archive.h"
+#include "node.h"
+#include "archive.h"
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test Node construction
 TEST(NodeTest, Construction) {

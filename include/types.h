@@ -3,15 +3,15 @@
  * @brief Common type definitions for ANSYS CDB parser
  */
 
-#ifndef ANSYS_CDB_TYPES_H
-#define ANSYS_CDB_TYPES_H
+#ifndef CDB_TYPES_H
+#define CDB_TYPES_H
 
 #include <array>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Component type enumeration
@@ -68,6 +68,6 @@ struct EBLOCKFormat {
     EBLOCKFormat() : format_code(0), format_type("SOLID") {}
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_TYPES_H
+#endif // CDB_TYPES_H

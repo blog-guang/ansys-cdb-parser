@@ -3,10 +3,10 @@
  * @brief Node implementation
  */
 
-#include "ansys_cdb/node.h"
+#include "node.h"
 
-namespace ansys_cdb {
+namespace cdb {
 
 // All methods are inline in the header
 
-} // namespace ansys_cdb
+} // namespace cdb

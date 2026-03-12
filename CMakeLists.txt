@@ -51,12 +51,13 @@ install(TARGETS ansys_cdb
     RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include/ansys_cdb
+install(DIRECTORY include/
     DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
 )
 
 install(EXPORT ansys_cdb_targets
     FILE ansys_cdb_targets.cmake
-    NAMESPACE ansys_cdb::
+    NAMESPACE cdb::
     DESTINATION lib/cmake/ansys_cdb
 )

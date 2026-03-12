@@ -4,7 +4,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/archive.h"
+#include "archive.h"
 #include <set>
 #include <map>
 #include <vector>
@@ -12,7 +12,7 @@
 #include <chrono>
 #include <iostream>
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Test academic_rotor.cdb - ET 185 (3D structural solid)
 TEST(ElementTypesTest, AcademicRotor_ET185) {

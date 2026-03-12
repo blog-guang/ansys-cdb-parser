@@ -3,10 +3,10 @@
  * @brief Component implementation
  */
 
-#include "ansys_cdb/component.h"
+#include "component.h"
 
-namespace ansys_cdb {
+namespace cdb {
 
 // All methods are inline in the header
 
-} // namespace ansys_cdb
+} // namespace cdb

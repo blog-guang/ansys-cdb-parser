@@ -4,7 +4,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "ansys_cdb/archive.h"
+#include "archive.h"
 #include <chrono>
 #include <iostream>
 #include <iomanip>
@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace ansys_cdb;
+using namespace cdb;
 
 // Performance benchmark for parsing
 TEST(PerformanceTest, DetailedBenchmark) {

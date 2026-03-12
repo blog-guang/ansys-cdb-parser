@@ -3,11 +3,11 @@
  * @brief Archive implementation
  */
 
-#include "ansys_cdb/archive.h"
-#include "ansys_cdb/parser.h"
+#include "archive.h"
+#include "parser.h"
 #include <stdexcept>
 
-namespace ansys_cdb {
+namespace cdb {
 
 Archive::Archive(const std::string& filename) 
     : filename_(filename) {
@@ -97,4 +97,4 @@ void Archive::clear() {
     parameters_.clear();
 }
 
-} // namespace ansys_cdb
+} // namespace cdb

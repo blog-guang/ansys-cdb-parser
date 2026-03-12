@@ -3,8 +3,8 @@
  * @brief Main Archive class for CDB file parsing
  */
 
-#ifndef ANSYS_CDB_ARCHIVE_H
-#define ANSYS_CDB_ARCHIVE_H
+#ifndef CDB_ARCHIVE_H
+#define CDB_ARCHIVE_H
 
 #include "component.h"
 #include "element.h"
@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Main class for reading and storing ANSYS CDB archive data
@@ -162,6 +162,6 @@ private:
     friend class Parser;
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_ARCHIVE_H
+#endif // CDB_ARCHIVE_H

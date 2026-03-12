@@ -3,12 +3,12 @@
  * @brief Element data structure definition
  */
 
-#ifndef ANSYS_CDB_ELEMENT_H
-#define ANSYS_CDB_ELEMENT_H
+#ifndef CDB_ELEMENT_H
+#define CDB_ELEMENT_H
 
 #include <vector>
 
-namespace ansys_cdb {
+namespace cdb {
 
 /**
  * @brief Represents a finite element
@@ -48,6 +48,6 @@ struct Element {
     }
 };
 
-} // namespace ansys_cdb
+} // namespace cdb
 
-#endif // ANSYS_CDB_ELEMENT_H
+#endif // CDB_ELEMENT_H

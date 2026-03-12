@@ -3,7 +3,7 @@
  * @brief Simple example of reading a CDB file
  */
 
-#include <ansys_cdb/archive.h>
+#include <archive.h>
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     }
     
     try {
-        ansys_cdb::Archive archive(argv[1]);
+        cdb::Archive archive(argv[1]);
         
         std::cout << "Successfully loaded: " << argv[1] << std::endl;
         std::cout << "Number of nodes: " << archive.num_nodes() << std::endl;

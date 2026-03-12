@@ -3,14 +3,14 @@
  * @brief CDB file parser implementation
  */
 
-#include "ansys_cdb/parser.h"
+#include "parser.h"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <regex>
 #include <sstream>
 
-namespace ansys_cdb {
+namespace cdb {
 
 bool Parser::parse(const std::string& filename, Archive& archive) {
     std::ifstream file(filename);
@@ -697,4 +697,4 @@ std::string Parser::to_upper(const std::string& str) {
     return result;
 }
 
-} // namespace ansys_cdb
+} // namespace cdb
