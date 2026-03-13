@@ -22,6 +22,7 @@ add_executable(ansys_cdb_tests
     test_additional_files.cpp
     test_element_types.cpp
     test_performance.cpp
+    test_phase6_extended.cpp
 )
 
 target_link_libraries(ansys_cdb_tests
