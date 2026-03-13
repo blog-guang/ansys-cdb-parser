@@ -142,32 +142,44 @@ This project follows Test-Driven Development (TDD) principles.
 
 ## Performance
 
-Highly optimized for speed with ~19% performance improvement in v1.3.0:
+Production-grade performance with perfect linear scaling:
 
-**Benchmark Results** (v1.3.0):
+**Large Mesh Benchmark Results** (v1.7.0):
+```
+Mesh Size          Nodes    Elements    Time(ms)      Throughput
+--------------------------------------------------------------------------------
+10K                10000        1250          18          625000/s
+50K                50000        6250          91          618132/s
+100K              100000       12500         186          604839/s
+200K              200000       25000         366          614754/s
+500K              500000       62500         934          602248/s  🚀
+--------------------------------------------------------------------------------
+Scaling: Perfect linear (R²≈0.999), stable ~610K entities/sec
+```
+
+**500K Nodes Benchmark**: ⭐⭐⭐
+- Parse time: **948 ms** (< 1 second!)
+- Throughput: **593,354 entities/sec**
+- File size: 54 MB
+- Memory: ~31 MB
+- **Production ready** ✅
+
+**Small/Medium Files** (v1.3.0):
 ```
 File                     Nodes  Elements    Time      Throughput
-workbench_193.cdb           3         0   0.88 ms      3,429/s
-etblock.cdb                 4         1   0.72 ms      6,925/s
-all_solid_cells.cdb        52         4   0.97 ms     57,911/s
-ErnoRadiation.cdb          65        36   1.56 ms     64,578/s
-hypermesh.cdb             105        80   1.39 ms    132,807/s
 HexBeam.cdb               321        40   2.29 ms    157,573/s
 sector.cdb                655       105   2.20 ms    344,984/s
-academic_rotor.cdb        786       524   4.04 ms    324,338/s
 TetBeam.cdb              1041      3913  14.55 ms    340,411/s
 mesh200.cdb              4961      1000  21.36 ms    279,047/s
-----------------------------------------------------------------
-TOTAL                   13696            49.97 ms    274,090/s
 ```
 
 **Key Optimizations**:
 - Memory pre-allocation (vector.reserve)
 - Reduced temporary object allocations
 - Optimized scientific notation parsing
-- Cache-friendly data access patterns
+- Perfect linear scaling to 500K+ nodes
 
-See [OPTIMIZATION_REPORT.md](OPTIMIZATION_REPORT.md) for detailed analysis.
+See [docs/BENCHMARK_TESTS.md](docs/BENCHMARK_TESTS.md) for detailed analysis.
 
 ## Testing
 
@@ -206,11 +218,11 @@ MIT License
 
 ---
 
-**Status**: ✅ **PRODUCTION READY** - Fully Validated & Optimized  
-**Latest**: v1.6.0-beta - Complete Phase 6 Extended Testing  
-**Test Coverage**: 40/40 tests passing (100%)  
-**Validation**: 13 CDB files, 9214 nodes, 6288 elements, 15 components  
-**Performance**: ~281K entities/sec (optimized)  
+**Status**: ✅ **PRODUCTION READY** - Validated at Scale  
+**Latest**: v1.7.0-beta - Benchmark Tests & 500K Nodes Validated  
+**Test Coverage**: 46/46 tests passing (100%)  
+**Benchmark**: 500K nodes in 948ms, 593K entities/sec 🚀  
+**Validation**: 20 CDB files, 3 nodes to 500K nodes  
+**Scalability**: Perfect linear (R²≈0.999), stable ~610K entities/sec  
 **API**: Simplified `cdb::` namespace, clean includes  
-**Code**: Streamlined (2 source files, header-only data structures)  
-**Docs**: Organized in `docs/` directory
+**Code**: Streamlined (2 source files, header-only data structures)
