@@ -64,6 +64,12 @@ bool Parser::parse(const std::string& filename, Archive& archive) {
         else if (upper.find("*SET") == 0) {
             parse_set(trimmed, archive);  // Non-critical, don't fail on error
         }
+        else if (upper.find("D,") == 0) {
+            parse_d(trimmed, archive);  // Non-critical, don't fail on error
+        }
+        else if (upper.find("F,") == 0) {
+            parse_f(trimmed, archive);  // Non-critical, don't fail on error
+        }
     }
     
     return true;
@@ -679,6 +685,137 @@ double Parser::parse_scientific(const std::string& str) {
         std::cerr << "Warning: Failed to parse scientific notation: '" << str << "'" << std::endl;
         return 0.0;
     }
+}
+
+bool Parser::parse_d(const std::string& line, Archive& archive) {
+    // Parse D command (displacement constraint)
+    // Format: D,NODE,Lab,VALUE,VALUE2,NEND,NINC,KEXPND,Lab2,Lab3,Lab4,Lab5,Lab6
+    // Example: D,1,UX,0.0
+    //          D,ALL,UY,0.0
+    //          D,10,20,UZ,0.0  (nodes 10 to 20)
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 4) {
+        return false;  // Invalid D command
+    }
+    
+    // tokens[0] = "D"
+    // tokens[1] = NODE (node ID, or ALL, or start node)
+    // tokens[2] = Lab (DOF label like UX, UY, UZ, etc., or end node)
+    // tokens[3] = VALUE (constraint value, or DOF label if tokens[2] is end node)
+    
+    std::string node_str = tokens[1];
+    std::string dof_str;
+    std::string value_str;
+    
+    // Check if it's a range (D,start,end,dof,value)
+    try {
+        int start_node = std::stoi(tokens[1]);
+        int end_node = std::stoi(tokens[2]);
+        dof_str = tokens[3];
+        value_str = (tokens.size() > 4) ? tokens[4] : "0.0";
+        
+        // Apply constraint to all nodes in range
+        for (int nid = start_node; nid <= end_node; ++nid) {
+            DisplacementBC bc;
+            bc.node_id = nid;
+            bc.dof = dof_str;
+            bc.value = std::stod(value_str);
+            archive.displacement_bcs_.push_back(bc);
+        }
+        return true;
+    } catch (...) {
+        // Not a range, continue with normal parsing
+    }
+    
+    // Normal format: D,NODE,Lab,VALUE
+    if (node_str == "ALL") {
+        // Apply to all nodes
+        dof_str = tokens[2];
+        value_str = tokens[3];
+        
+        for (const auto& node : archive.get_nodes()) {
+            DisplacementBC bc;
+            bc.node_id = node.id;
+            bc.dof = dof_str;
+            bc.value = std::stod(value_str);
+            archive.displacement_bcs_.push_back(bc);
+        }
+    } else {
+        // Single node
+        try {
+            DisplacementBC bc;
+            bc.node_id = std::stoi(tokens[1]);
+            bc.dof = tokens[2];
+            bc.value = std::stod(tokens[3]);
+            archive.displacement_bcs_.push_back(bc);
+        } catch (...) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool Parser::parse_f(const std::string& line, Archive& archive) {
+    // Parse F command (nodal force)
+    // Format: F,NODE,Lab,VALUE,VALUE2,PHASE
+    // Example: F,10,FX,1000.0
+    //          F,20,FY,-500.0
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 4) {
+        return false;  // Invalid F command
+    }
+    
+    // tokens[0] = "F"
+    // tokens[1] = NODE (node ID or ALL)
+    // tokens[2] = Lab (force label: FX, FY, FZ, MX, MY, MZ)
+    // tokens[3] = VALUE (force magnitude)
+    
+    std::string node_str = tokens[1];
+    std::string direction = tokens[2];
+    std::string value_str = tokens[3];
+    
+    if (node_str == "ALL") {
+        // Apply to all nodes
+        for (const auto& node : archive.get_nodes()) {
+            NodalForce force;
+            force.node_id = node.id;
+            force.direction = direction;
+            force.value = std::stod(value_str);
+            archive.nodal_forces_.push_back(force);
+        }
+    } else {
+        // Single node
+        try {
+            NodalForce force;
+            force.node_id = std::stoi(tokens[1]);
+            force.direction = tokens[2];
+            force.value = std::stod(tokens[3]);
+            archive.nodal_forces_.push_back(force);
+        } catch (...) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 std::string Parser::trim(const std::string& str) {

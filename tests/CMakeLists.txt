@@ -25,6 +25,7 @@ add_executable(ansys_cdb_tests
     test_phase6_extended.cpp
     test_benchmark.cpp
     test_multi_material.cpp
+    test_boundary_conditions.cpp
 )
 
 target_link_libraries(ansys_cdb_tests

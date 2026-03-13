@@ -6,6 +6,7 @@
 #ifndef CDB_ARCHIVE_H
 #define CDB_ARCHIVE_H
 
+#include "boundary_condition.h"
 #include "component.h"
 #include "element.h"
 #include "node.h"
@@ -139,6 +140,54 @@ public:
     size_t num_real_constants() const { return real_constants_.size(); }
     
     /**
+     * @brief Get all displacement boundary conditions
+     * @return Vector of displacement BCs
+     */
+    const std::vector<DisplacementBC>& get_displacement_bcs() const { return displacement_bcs_; }
+    
+    /**
+     * @brief Get all nodal forces
+     * @return Vector of nodal forces
+     */
+    const std::vector<NodalForce>& get_nodal_forces() const { return nodal_forces_; }
+    
+    /**
+     * @brief Get all surface loads
+     * @return Vector of surface loads
+     */
+    const std::vector<SurfaceLoad>& get_surface_loads() const { return surface_loads_; }
+    
+    /**
+     * @brief Get all body forces
+     * @return Vector of body forces
+     */
+    const std::vector<BodyForce>& get_body_forces() const { return body_forces_; }
+    
+    /**
+     * @brief Get number of displacement boundary conditions
+     * @return Displacement BC count
+     */
+    size_t num_displacement_bcs() const { return displacement_bcs_.size(); }
+    
+    /**
+     * @brief Get number of nodal forces
+     * @return Nodal force count
+     */
+    size_t num_nodal_forces() const { return nodal_forces_.size(); }
+    
+    /**
+     * @brief Get number of surface loads
+     * @return Surface load count
+     */
+    size_t num_surface_loads() const { return surface_loads_.size(); }
+    
+    /**
+     * @brief Get number of body forces
+     * @return Body force count
+     */
+    size_t num_body_forces() const { return body_forces_.size(); }
+    
+    /**
      * @brief Clear all data
      */
     void clear();
@@ -156,6 +205,11 @@ private:
     std::unordered_map<int, ElementType> element_types_;
     std::unordered_map<int, RealConstant> real_constants_;
     std::unordered_map<std::string, double> parameters_;
+    
+    std::vector<DisplacementBC> displacement_bcs_;
+    std::vector<NodalForce> nodal_forces_;
+    std::vector<SurfaceLoad> surface_loads_;
+    std::vector<BodyForce> body_forces_;
     
     std::string filename_;
     

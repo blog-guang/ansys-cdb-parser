@@ -106,6 +106,22 @@ private:
      * @return true if successful
      */
     static bool parse_set(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse D command (displacement constraint)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_d(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse F command (nodal force)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_f(const std::string& line, Archive& archive);
 };
 
 } // namespace cdb
