@@ -13,9 +13,6 @@ option(BUILD_EXAMPLES "Build examples" ON)
 # Library
 add_library(ansys_cdb
     src/parser.cpp
-    src/node.cpp
-    src/element.cpp
-    src/component.cpp
     src/archive.cpp
 )
 
