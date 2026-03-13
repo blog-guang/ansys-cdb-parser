@@ -197,6 +197,25 @@ This implementation follows the format specifications from:
 - [mapdl-archive](https://github.com/akaszynski/mapdl-archive) - Python reference implementation
 - ANSYS MAPDL documentation
 
+## Documentation
+
+### User Guides
+- [FAQ](docs/FAQ.md) - Frequently Asked Questions
+- [Feature Support Matrix](docs/FEATURE_SUPPORT.md) - Detailed feature coverage
+- [Unsupported Features](docs/UNSUPPORTED_FEATURES.md) - Quick reference for missing features
+- [CDB Commands Reference](docs/CDB_COMMANDS_REFERENCE.md) - Complete ANSYS CDB command list
+
+### Technical Reports
+- [Benchmark Tests](docs/BENCHMARK_TESTS.md) - Large mesh performance validation
+- [Phase 6 Extended Testing](docs/PHASE6_COMPLETE.md) - Comprehensive test validation
+- [Optimization Report](docs/OPTIMIZATION_REPORT.md) - Performance optimization analysis
+- [Performance Summary](docs/PERFORMANCE_SUMMARY.md) - Performance metrics
+
+### Development
+- [Project Complete](docs/PROJECT_COMPLETE.md) - Project completion summary
+- [API Refactoring v1.4](docs/REFACTORING_v1.4.md) - Namespace simplification
+- [Cleanup v1.5](docs/CLEANUP_v1.5.md) - Project structure cleanup
+
 ## License
 
 MIT License
