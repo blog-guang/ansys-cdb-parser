@@ -122,6 +122,22 @@ private:
      * @return true if successful
      */
     static bool parse_f(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse MPTEMP command (material temperature table)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_mptemp(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse MPDATA command (material property data)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_mpdata(const std::string& line, Archive& archive);
 };
 
 } // namespace cdb

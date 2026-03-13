@@ -70,6 +70,12 @@ bool Parser::parse(const std::string& filename, Archive& archive) {
         else if (upper.find("F,") == 0) {
             parse_f(trimmed, archive);  // Non-critical, don't fail on error
         }
+        else if (upper.find("MPTEMP") == 0) {
+            parse_mptemp(trimmed, archive);  // Non-critical
+        }
+        else if (upper.find("MPDATA") == 0) {
+            parse_mpdata(trimmed, archive);  // Non-critical
+        }
     }
     
     return true;
@@ -814,6 +820,115 @@ bool Parser::parse_f(const std::string& line, Archive& archive) {
             return false;
         }
     }
+    
+    return true;
+}
+
+bool Parser::parse_mptemp(const std::string& line, Archive& archive) {
+    // Parse MPTEMP command (material temperature table)
+    // Format: MPTEMP,R5.0,STLOC,T1,T2,T3,T4,T5,T6
+    // Example: MPTEMP,1,0,200,400,600,800,1000
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 3) {
+        return false;  // Invalid MPTEMP command
+    }
+    
+    // tokens[0] = "MPTEMP"
+    // tokens[1] = R5.0 or table number (usually 1)
+    // tokens[2] = starting location (usually 0)
+    // tokens[3+] = temperature values
+    
+    std::vector<double> temps;
+    for (size_t i = 3; i < tokens.size(); ++i) {
+        try {
+            temps.push_back(std::stod(tokens[i]));
+        } catch (...) {
+            // Skip invalid values
+        }
+    }
+    
+    // Set temperature table in material database
+    if (!temps.empty()) {
+        archive.get_material_database().set_temp_table(temps);
+    }
+    
+    return true;
+}
+
+bool Parser::parse_mpdata(const std::string& line, Archive& archive) {
+    // Parse MPDATA command (material property data)
+    // Format: MPDATA,Lab,MAT,SLOC,C1,C2,C3,C4,C5,C6
+    // Example: MPDATA,EX,1,,2.0E11
+    //          MPDATA,PRXY,1,,0.3
+    //          MPDATA,DENS,1,,7850
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 4) {
+        return false;  // Invalid MPDATA command
+    }
+    
+    // tokens[0] = "MPDATA"
+    // tokens[1] = Lab (property name: EX, PRXY, DENS, etc.)
+    // tokens[2] = MAT (material ID)
+    // tokens[3] = SLOC (starting location, usually empty)
+    // tokens[4+] = C1, C2, C3... (property values)
+    
+    std::string property_name = tokens[1];
+    int material_id = 0;
+    
+    try {
+        material_id = std::stoi(tokens[2]);
+    } catch (...) {
+        return false;
+    }
+    
+    // Collect property values
+    std::vector<double> values;
+    for (size_t i = 4; i < tokens.size() && i < 10; ++i) {  // Max 6 values per line
+        if (!tokens[i].empty()) {
+            try {
+                values.push_back(std::stod(tokens[i]));
+            } catch (...) {
+                // Skip invalid values
+            }
+        }
+    }
+    
+    if (values.empty()) {
+        return false;
+    }
+    
+    // Create material property
+    MaterialProperty prop;
+    prop.material_id = material_id;
+    prop.property_name = property_name;
+    prop.values = values;
+    
+    // Copy temperature table if available
+    const auto& temp_table = archive.get_material_database().get_temp_table();
+    if (!temp_table.empty() && values.size() <= temp_table.size()) {
+        prop.temps.assign(temp_table.begin(), temp_table.begin() + values.size());
+    }
+    
+    // Add to material database
+    archive.get_material_database().add_property(prop);
     
     return true;
 }

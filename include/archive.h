@@ -9,6 +9,7 @@
 #include "boundary_condition.h"
 #include "component.h"
 #include "element.h"
+#include "material_property.h"
 #include "node.h"
 #include "types.h"
 #include <string>
@@ -188,6 +189,46 @@ public:
     size_t num_body_forces() const { return body_forces_.size(); }
     
     /**
+     * @brief Get material database
+     * @return Reference to material database
+     */
+    const MaterialDatabase& get_material_database() const { return material_db_; }
+    
+    /**
+     * @brief Get material database (non-const for parser)
+     * @return Reference to material database
+     */
+    MaterialDatabase& get_material_database() { return material_db_; }
+    
+    /**
+     * @brief Get material property value
+     * @param material_id Material ID
+     * @param property_name Property name (EX, PRXY, DENS, etc.)
+     * @param temp Temperature (default 0.0)
+     * @return Property value or 0.0 if not found
+     */
+    double get_material_property(int material_id, const std::string& property_name, double temp = 0.0) const {
+        return material_db_.get_property_value(material_id, property_name, temp);
+    }
+    
+    /**
+     * @brief Get all properties for a material
+     * @param material_id Material ID
+     * @return Vector of properties
+     */
+    std::vector<MaterialProperty> get_material_properties(int material_id) const {
+        return material_db_.get_material_properties(material_id);
+    }
+    
+    /**
+     * @brief Get number of material properties
+     * @return Material property count
+     */
+    size_t num_material_properties() const {
+        return material_db_.get_properties().size();
+    }
+    
+    /**
      * @brief Clear all data
      */
     void clear();
@@ -210,6 +251,8 @@ private:
     std::vector<NodalForce> nodal_forces_;
     std::vector<SurfaceLoad> surface_loads_;
     std::vector<BodyForce> body_forces_;
+    
+    MaterialDatabase material_db_;
     
     std::string filename_;
     

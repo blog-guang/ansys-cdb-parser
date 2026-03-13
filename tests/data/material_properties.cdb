@@ -1,0 +1,65 @@
+/PREP7
+!
+! Material properties test file
+!
+! Define simple mesh
+NBLOCK,6,SOLID,4,4
+(3i9,6e21.13e3)
+        1        0        0 0.0000000000000E+00 0.0000000000000E+00 0.0000000000000E+00
+        2        0        0 1.0000000000000E+00 0.0000000000000E+00 0.0000000000000E+00
+        3        0        0 1.0000000000000E+00 1.0000000000000E+00 0.0000000000000E+00
+        4        0        0 0.0000000000000E+00 1.0000000000000E+00 0.0000000000000E+00
+      -1
+ET,1,SOLID185
+ET,2,SOLID186
+EBLOCK,19,SOLID,2,2
+(19i9)
+        1        1        1        1        0        0        0        0        4        0        1        2        3        4        0        0        0        0        0
+        2        2        2        2        0        0        0        0        4        0        1        2        3        4        0        0        0        0        0
+      -1
+!
+! Material 1: Steel
+!
+! Elastic modulus (Pa)
+MPDATA,EX,1,,2.0E11
+! Poisson's ratio
+MPDATA,PRXY,1,,0.3
+! Density (kg/m^3)
+MPDATA,DENS,1,,7850
+! Thermal expansion coefficient (1/K)
+MPDATA,ALPX,1,,1.2E-5
+! Thermal conductivity (W/m-K)
+MPDATA,KXX,1,,50.0
+!
+! Material 2: Aluminum
+!
+MPDATA,EX,2,,7.0E10
+MPDATA,PRXY,2,,0.33
+MPDATA,DENS,2,,2700
+MPDATA,ALPX,2,,2.3E-5
+MPDATA,KXX,2,,200.0
+!
+! Material 3: Temperature-dependent properties
+!
+! Define temperature table
+MPTEMP,1,0,100,200,300,400,500
+!
+! Young's modulus varies with temperature
+MPDATA,EX,3,,2.1E11,2.05E11,2.0E11,1.95E11,1.9E11,1.85E11
+! Poisson's ratio (constant)
+MPDATA,PRXY,3,,0.3
+! Density (constant)
+MPDATA,DENS,3,,7800
+!
+! Material 4: Composite
+!
+MPDATA,EX,4,,1.5E11
+MPDATA,EY,4,,1.2E11
+MPDATA,EZ,4,,8.0E10
+MPDATA,PRXY,4,,0.25
+MPDATA,PRYZ,4,,0.28
+MPDATA,PRXZ,4,,0.26
+MPDATA,GXY,4,,5.0E10
+MPDATA,GYZ,4,,4.5E10
+MPDATA,GXZ,4,,4.8E10
+FINISH
