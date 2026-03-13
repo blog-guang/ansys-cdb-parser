@@ -23,6 +23,7 @@ add_executable(ansys_cdb_tests
     test_element_types.cpp
     test_performance.cpp
     test_phase6_extended.cpp
+    test_benchmark.cpp
 )
 
 target_link_libraries(ansys_cdb_tests
