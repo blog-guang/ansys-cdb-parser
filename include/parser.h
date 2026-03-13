@@ -138,6 +138,22 @@ private:
      * @return true if successful
      */
     static bool parse_mpdata(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse N command (single node definition)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_n(const std::string& line, Archive& archive);
+    
+    /**
+     * @brief Parse EN command (single element definition)
+     * @param line Current line
+     * @param archive Archive to populate
+     * @return true if successful
+     */
+    static bool parse_en(const std::string& line, Archive& archive);
 };
 
 } // namespace cdb

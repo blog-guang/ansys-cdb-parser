@@ -27,6 +27,7 @@ add_executable(ansys_cdb_tests
     test_multi_material.cpp
     test_boundary_conditions.cpp
     test_material_properties.cpp
+    test_single_commands.cpp
 )
 
 target_link_libraries(ansys_cdb_tests

@@ -76,6 +76,12 @@ bool Parser::parse(const std::string& filename, Archive& archive) {
         else if (upper.find("MPDATA") == 0) {
             parse_mpdata(trimmed, archive);  // Non-critical
         }
+        else if (upper.find("N,") == 0) {
+            parse_n(trimmed, archive);  // Non-critical
+        }
+        else if (upper.find("EN,") == 0) {
+            parse_en(trimmed, archive);  // Non-critical
+        }
     }
     
     return true;
@@ -929,6 +935,130 @@ bool Parser::parse_mpdata(const std::string& line, Archive& archive) {
     
     // Add to material database
     archive.get_material_database().add_property(prop);
+    
+    return true;
+}
+
+bool Parser::parse_n(const std::string& line, Archive& archive) {
+    // Parse N command (single node definition)
+    // Format: N,NODE,X,Y,Z,THXY,THYZ,THZX
+    // Example: N,1,0.0,0.0,0.0
+    //          N,2,1.0,0.0,0.0
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 4) {
+        return false;  // Invalid N command
+    }
+    
+    // tokens[0] = "N"
+    // tokens[1] = NODE (node ID)
+    // tokens[2] = X
+    // tokens[3] = Y
+    // tokens[4] = Z (optional)
+    // tokens[5-7] = rotation angles (optional)
+    
+    Node node;
+    
+    try {
+        node.id = std::stoi(tokens[1]);
+        node.x = std::stod(tokens[2]);
+        node.y = std::stod(tokens[3]);
+        
+        if (tokens.size() > 4 && !tokens[4].empty()) {
+            node.z = std::stod(tokens[4]);
+        }
+        
+        // Rotation angles (optional)
+        if (tokens.size() > 5 && !tokens[5].empty()) {
+            node.angles[0] = std::stod(tokens[5]);
+        }
+        if (tokens.size() > 6 && !tokens[6].empty()) {
+            node.angles[1] = std::stod(tokens[6]);
+        }
+        if (tokens.size() > 7 && !tokens[7].empty()) {
+            node.angles[2] = std::stod(tokens[7]);
+        }
+    } catch (...) {
+        return false;
+    }
+    
+    // Add node to archive
+    size_t index = archive.nodes_.size();
+    archive.nodes_.push_back(node);
+    archive.node_map_[node.id] = index;
+    
+    return true;
+}
+
+bool Parser::parse_en(const std::string& line, Archive& archive) {
+    // Parse EN command (single element definition)
+    // Format: EN,ELEM,TYPE,REAL,MAT,SECNUM,ESYS,IXX,IYY,IZZ,MSHKEY,I,J,K,L,M,N,O,P
+    // Example: EN,1,1,1,1,0,0,0,0,0,0,1,2,3,4
+    //          EN,2,1,1,1,0,0,0,0,0,0,2,3,5,4
+    
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+    
+    // Split by comma
+    while (std::getline(iss, token, ',')) {
+        tokens.push_back(trim(token));
+    }
+    
+    if (tokens.size() < 11) {
+        return false;  // Invalid EN command
+    }
+    
+    // tokens[0] = "EN"
+    // tokens[1] = ELEM (element ID)
+    // tokens[2] = TYPE (element type ID)
+    // tokens[3] = REAL (real constant ID)
+    // tokens[4] = MAT (material ID)
+    // tokens[5] = SECNUM (section ID)
+    // tokens[6] = ESYS (element coordinate system)
+    // tokens[7-9] = IXX, IYY, IZZ (ignored)
+    // tokens[10] = MSHKEY (ignored)
+    // tokens[11+] = node IDs
+    
+    Element elem;
+    
+    try {
+        elem.id = std::stoi(tokens[1]);
+        elem.type = std::stoi(tokens[2]);
+        elem.real_constant_id = std::stoi(tokens[3]);
+        elem.material_id = std::stoi(tokens[4]);
+        elem.section_id = std::stoi(tokens[5]);
+        elem.coordinate_system = std::stoi(tokens[6]);
+        
+        // Collect node IDs starting from token[11]
+        for (size_t i = 11; i < tokens.size(); ++i) {
+            if (!tokens[i].empty()) {
+                int node_id = std::stoi(tokens[i]);
+                if (node_id > 0) {  // Skip zero/negative (unused nodes)
+                    elem.node_ids.push_back(node_id);
+                }
+            }
+        }
+    } catch (...) {
+        return false;
+    }
+    
+    if (elem.node_ids.empty()) {
+        return false;  // No valid nodes
+    }
+    
+    // Add element to archive
+    size_t index = archive.elements_.size();
+    archive.elements_.push_back(elem);
+    archive.element_map_[elem.id] = index;
     
     return true;
 }

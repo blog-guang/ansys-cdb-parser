@@ -1,0 +1,42 @@
+/PREP7
+!
+! Single node and element definition test
+! Using N and EN commands instead of NBLOCK/EBLOCK
+!
+! Define element type
+ET,1,SOLID185
+!
+! Define nodes using N command
+N,1,0.0,0.0,0.0
+N,2,1.0,0.0,0.0
+N,3,1.0,1.0,0.0
+N,4,0.0,1.0,0.0
+N,5,0.0,0.0,1.0
+N,6,1.0,0.0,1.0
+N,7,1.0,1.0,1.0
+N,8,0.0,1.0,1.0
+!
+! Define additional nodes with rotation angles
+N,9,2.0,0.0,0.0,0.0,0.0,0.0
+N,10,2.0,1.0,0.0,0.0,0.0,45.0
+!
+! Define elements using EN command
+! EN,ELEM,TYPE,REAL,MAT,SECNUM,ESYS,IXX,IYY,IZZ,MSHKEY,I,J,K,L,M,N,O,P
+EN,1,1,1,1,0,0,0,0,0,0,1,2,3,4,5,6,7,8
+EN,2,1,1,2,0,0,0,0,0,0,2,9,10,3,6,0,0,7
+!
+! Mix N/EN with NBLOCK/EBLOCK
+!
+! Additional nodes via NBLOCK
+NBLOCK,6,SOLID,2,2
+(3i9,6e21.13e3)
+       11        0        0 3.0000000000000E+00 0.0000000000000E+00 0.0000000000000E+00
+       12        0        0 3.0000000000000E+00 1.0000000000000E+00 0.0000000000000E+00
+      -1
+!
+! Additional element via EBLOCK
+EBLOCK,19,SOLID,1,1
+(19i9)
+        3        1        1        3        0        0        0        0        4        0        9       10       12       11        0        0        0        0        0
+      -1
+FINISH
